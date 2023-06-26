@@ -1,0 +1,5 @@
+HorseThread继承Thread类实现多线程
+重写run方法，当调用start方法时使用
+新建四个线程h1，h2，h3，h4
+然后在主线程中调用start方法
+最后可以得出赢得比赛的Horse
