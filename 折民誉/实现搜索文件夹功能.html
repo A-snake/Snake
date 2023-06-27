@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>打开目录文件夹</title>
+</head>
+<body>
+  <h1>打开目录文件夹</h1>
+  <button onclick="openFolder()">选择文件夹</button>
+  <div id="output"></div>
+
+  <script>
+    function openFolder() {
+      // 创建一个隐藏的文件选择框
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.style.display = 'none';
+      input.webkitdirectory = true; // 仅在支持 WebKit 内核的浏览器中有效，例如 Chrome
+
+      // 监听文件选择事件
+      input.addEventListener('change', function(e) {
+        var files = e.target.files;
+        var folderPath = files[0].path; // 获取选择的文件夹路径
+        console.log('选择的文件夹路径：', folderPath);
+
+        // 在这里可以执行对文件夹的进一步操作，例如读取文件夹中的文件列表等
+        // 注意：由于浏览器的安全限制，JavaScript 无法直接访问文件系统，因此进一步的文件操作可能需要使用服务器端代码来实现
+
+        // 输出文件夹下的子文件标题
+        var outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = ''; // 清空之前的输出
+
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var title = file.name;
+          var titleElement = document.createElement('p');
+          titleElement.textContent = title;
+          outputDiv.appendChild(titleElement);
+        }
+      });
+
+      // 模拟点击隐藏的文件选择框
+      document.body.appendChild(input);
+      input.click();
+      document.body.removeChild(input);
+    }
+  </script>
+</body>
+</html>
