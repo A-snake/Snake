@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Python-JavaScript Interoperability</title>
+  <script src="https://pyodide.cdn.iodide.io/pyodide.js"></script>
+
+  <script>
+    // 初始化Pyodide
+    async function initPyodide() {
+      await loadPyodide({ indexURL: 'https://pyodide.cdn.iodide.io/pyodide.js' });
+      console.log('Pyodide initialized');
+    }
+  
+    // 在页面加载完成后初始化Pyodide
+    window.onload = initPyodide;
+  </script>
+  
+  
+  <script>
+    async function runPythonCode() {
+
+      // 定义Python代码
+      var pythonCode = `
+import os
+import PyPDF2
+from docx2pdf import convert
+import sqlite3
+
+def save_sqlite(file):
+    global id
+    id += 1
+    document = (id, file)
+    cursor.execute(
+        "insert into document (id,file) values(?,?)",
+        document
+    )
+    conn.commit()
+
+def output(file_address,keyword):
+    pdf_file = open(file_address, 'rb')
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    num_pages = len(pdf_reader.pages)
+    output = ''
+    for page in range(num_pages):
+        pdf_page = pdf_reader.pages[page]
+        page_text = pdf_page.extract_text()
+        lines = page_text.split('\\n')
+        for i, line in enumerate(lines):
+            if keyword in line:
+                output += f"Line {i}: {line}\\n"
+        output += "\\n"
+    pdf_file.close()
+    return output
+
+def search_files(keyword, path):
+    output = ''
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.endswith('.docx'):
+                output += os.path.join(root, file) + "\\n"
+                output += "-----------------------------------\\n"
+                save_sqlite(os.path.join(root, file))
+                convert(os.path.join(root, file), "C://Users//lenovo//Desktop//asd//output.pdf")
+                file_address="C://Users//lenovo//Desktop//asd//output.pdf"
+                output += output(file_address,keyword)
+                os.remove("C://Users//lenovo//Desktop//asd//output.pdf")
+            elif file.endswith('.pdf'):
+                output += os.path.join(root, file) + "\\n"
+                output += "-----------------------------------\\n"
+                save_sqlite(os.path.join(root, file))
+                output += output(os.path.join(root, file), keyword)
+    return output
+
+
+if __name__=="__main__":
+    id=0
+    dbPath='document.sqlite'
+    if os.path.exists(dbPath):
+        os.remove(dbPath)
+    conn=sqlite3.connect(dbPath)
+    cursor=conn.cursor()
+    cursor.execute('''CREATE TABLE document (id INT NOT NULL,file CHAR(50) NOT NULL);''')
+    conn.commit()
+
+    var output = search_files('Python', 'C://Users//lenovo//Desktop//asd');
+
+    // 将输出结果显示在文本框中
+    document.getElementById('output').value = output;
+`;
+
+      // 执行Python代码
+      var output = await pyodide.runPythonAsync(pythonCode);
+
+      // 将输出结果显示在文本框中
+      document.getElementById('output').value = output;
+    }
+  </script>
+</head>
+<body>
+  <h1>APP文件检索系统</h1>
+  <button onclick="runPythonCode()">运行Python代码</button>
+  <br>
+  <textarea id="output" rows="10" cols="50" placeholder="输出内容"></textarea>
+
+  <script>
+    // 初始化Pyodide
+    async function initPyodide() {
+      await loadPyodide({ indexURL: 'https://pyodide.cdn.iodide.io/pyodide.js' });
+      console.log('Pyodide initialized');
+    }
+
+    // 在页面加载完成后初始化Pyodide
+    window.onload = initPyodide;
+  </script>
+</body>
+</html>
