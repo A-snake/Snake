@@ -1,3 +1,7 @@
+'''
+完成文件夹的检索功能
+通过指定关键字和文件夹实现检索
+'''
 import os
 import PyPDF2
 from docx2pdf import convert
@@ -35,7 +39,7 @@ def search_files(keyword, path):     #根据关键字和文件夹路径检索文
 
 
 if __name__=="__main__":
-    '''从前段获取关键字和文件夹地址后替换下方代码'''
+    '''从前端获取关键字和文件夹地址后替换下方代码'''
     #keyword=
     #file_address=
     search_files('Python', './test_documents')   #测试案例
