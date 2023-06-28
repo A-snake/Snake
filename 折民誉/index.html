@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件检索系统</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#searchForm").submit(function(event) {
+                event.preventDefault(); // 阻止表单提交的默认行为
+
+                var formData = {
+                    keyword: $("#keyword").val(),
+                    folderPath: $("#folderPath").val()
+                };
+
+                $.ajax({
+                type: "POST",
+                url: "http://localhost:5000/search",
+                data: JSON.stringify(formData),
+                contentType: "application/json",
+                success: function(data) {
+                    var files = data.files;
+                    var output = "";
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i][0];
+                        var lines = files[i][1];
+                        output += "<strong>" + file + "</strong><br>";
+                        for (var j = 0; j < lines.length; j++) {
+                            output += lines[j] + "<br>";
+                        }
+                        output += "<br>";
+                    }
+                    $("#outputResult").html(output);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>文件检索系统</h1>
+    <form id="searchForm">
+        <label for="keyword">关键字:</label>
+        <input type="text" id="keyword" name="keyword" required><br><br>
+        <label for="folderPath">文件夹路径:</label>
+        <input type="file" id="folderPath" name="folderPath" webkitdirectory directory required><br><br>
+        <input type="submit" value="搜索">
+    </form>
+
+    <h2>输出结果:</h2>
+    <div id="outputResult"></div>
+</body>
+</html>
