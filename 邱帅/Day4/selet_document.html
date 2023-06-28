@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件检索系统</title>
+</head>
+<body>
+    <h1>文件检索系统</h1>
+    <label for="folder">选择目录：</label>
+    <input type="text" id="folder" placeholder="输入目录路径">
+    <br>
+    <label for="keyword">输入关键字：</label>
+    <input type="text" id="keyword" placeholder="输入关键字">
+    <button onclick="search()">搜索</button>
+    <br>
+    <div id="result"></div>
+    <br>
+    <script>
+        function search() {
+            var folderPath = document.getElementById('folder').value;
+            var keyword = document.getElementById('keyword').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/search');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                // 处理搜索结果
+                def save_sqlite(file):
+                    global id
+                    id += 1
+                    document = (id, file)
+                    cursor.execute(
+                        "insert into document (id,file) values(?,?)",
+                        document
+                    )
+                    conn.commit()
+
+                def output1(root, file):
+                    fileaddress = str(os.path.join(root, file))
+                    output.insert(tk.END, fileaddress + "\n")
+                    output.insert(tk.END, "-----------------------------------\n")
+
+                def output2(file_address, keyword):
+                    pdf_file = open(file_address, 'rb')
+                    pdf_reader = PyPDF2.PdfReader(pdf_file)
+                    num_pages = len(pdf_reader.pages)
+                    for page in range(num_pages):
+                        pdf_page = pdf_reader.pages[page]
+                        page_text = pdf_page.extract_text()
+                        lines = page_text.split('\n')
+                        for i, line in enumerate(lines):
+                            if keyword in line:
+                                output.insert(tk.END, f"Page {page + 1}, Line {i}: {line}\n")
+                        output.insert(tk.END, "\n")
+                    pdf_file.close()
+
+                def search_files(keyword, path):
+                    for root, dirs, files in os.walk(path):
+                        for file in files:
+                            if file.endswith('.docx'):
+                                file_address = "./test_documents/output.pdf"
+                                output1(root, file)
+                                save_sqlite(os.path.join(root, file))
+                                convert(os.path.join(root, file), file_address)
+                                output2(file_address, keyword)
+                                os.remove(file_address)
+                            elif file.endswith('.pdf'):
+                                output1(root, file)
+                                save_sqlite(os.path.join(root, file))
+                                output2(os.path.join(root, file), keyword)
+
+                def get_input():
+                    search_files(keyword, folderPath)
+
+                if __name__ == "__main__":
+                    id = 0
+                    dbPath = 'document.sqlite'
+                    if os.path.exists(dbPath):
+                        os.remove(dbPath)
+                    conn = sqlite3.connect(dbPath)
+                    cursor = conn.cursor()
+                    cursor.execute('''CREATE TABLE document (id INT NOT NULL,file CHAR(50) NOT NULL);''')
+                    conn.commit()
+
+                    grt_input()
+            };
+            xhr.send(JSON.stringify({ folder_path: folderPath, keyword: keyword }));
+        }
+    </script>
+</body>
+</html>
