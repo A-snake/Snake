@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>磁盘信息</title>
+  <script>
+
+    window.onload = function() {
+      const diskListElement = document.getElementById('diskList');
+
+      fetch('/api/getDiskList')
+              .then(response => response.json())
+              .then(diskList => {
+                diskList.forEach(diskName => {
+                  const diskElement = document.createElement('p');
+                  diskElement.innerText = '磁盘名称: ' + diskName;
+
+                  diskElement.addEventListener('click', () => {
+                    const selectedDiskName = diskName.replace('磁盘名称: ', '');
+                    getDiskInfo(selectedDiskName);
+                  });
+
+                  diskListElement.appendChild(diskElement);
+                });
+              })
+              .catch(error => console.log(error));
+    };
+
+
+
+    function getDiskInfo(selectedDiskName) {
+      // 向后端发送磁盘信息请求
+      fetch('/api/getDiskInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ diskName: selectedDiskName })
+      })
+              .then(response => response.json())
+              .then(diskInfo => {
+                // 在此处处理从后端返回的磁盘信息
+                console.log(diskInfo);
+              })
+              .catch(error => console.log(error));
+    }
+
+  </script>
+</head>
+<body>
+<h1>磁盘列表</h1>
+<div id="diskList"></div>
+</body>
+</html>

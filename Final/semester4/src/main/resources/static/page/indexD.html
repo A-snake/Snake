@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>磁盘信息</title>
+</head>
+<body>
+<h1>磁盘信息</h1>
+
+<ul id="diskInfo"></ul>
+
+<script>
+  window.onload = function() {
+    fetch('/api/getDiskInfoD', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+            .then(response => response.json())
+            .then(data => {
+              const diskInfoElement = document.getElementById('diskInfo');
+              data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.innerText = item;
+                diskInfoElement.appendChild(listItem);
+              });
+            })
+            .catch(error => console.log(error));
+  };
+</script>
+</body>
+</html>
